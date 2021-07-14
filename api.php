@@ -1,4 +1,4 @@
-<?
+<?php
 $mock_data = [
     0 => [
         'name' => 'Fulano',
