@@ -1,9 +1,11 @@
 // Syncs clock
 
-// Listens for incoming requests
+// Listens for incoming packets
 
-// Generates TOTP-Token
+// Generates TOTP-Token for validation
 
 // Checks TOTP-Token
+
+// Decrypts data
 
 // Prints data
