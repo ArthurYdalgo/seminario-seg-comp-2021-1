@@ -1,3 +1,5 @@
+<?php
+
 // Syncs clock
 // http://worldtimeapi.org/api/timezone/America/Sao_Paulo
 
