@@ -20,11 +20,59 @@ $mock_data = [
 
 // Syncs clock
 // http://worldtimeapi.org/api/timezone/America/Sao_Paulo
+$world_time_response = file_get_contents('http://worldtimeapi.org/api/timezone/America/Sao_Paulo');
 
-// Listens for incoming packets
+$world_time = json_decode($world_time_response, true);
 
-// Generates TOTP-Token for validation
+$date_time = new DateTime();
 
-// Checks TOTP-Token
+$date_time->setTimezone(new DateTimeZone("America/Sao_Paulo"));
 
-// Returns (or not) requested data
+$date_time->setTimestamp($world_time['unixtime']);
+
+$time_variables = [
+    'year' => 'Y',
+    'month' => 'm',
+    'day' => 'd',
+    'hour' => 'H',
+    'minute' => 'i',
+    'second' => 's',
+];
+
+foreach ($time_variables as $time_variable => $date_time_tag) {
+    $$time_variable = $date_time->format($date_time_tag);
+}
+
+
+if (isset($_GET['token'])) {
+    // Gets token
+    $token = $_GET['token'];
+
+    // Generates TOTP-Token for validation
+    $pre_hash_token = "{$day}-DHW-{$month}-ABH-".((int)($second / 30))."-ADC-{$year}-VFG-{$hour}-REW-{$minute}";
+
+    $hashed_verification_token = hash('sha512', $pre_hash_token);    
+
+    // Checks TOTP-Token and returns or not data
+    if ($token == $hashed_verification_token) {
+        $user = isset($_GET['user']) ? $_GET['user'] : null;
+        if (isset($mock_data[$user])) {
+            $response = $mock_data[$user];
+
+            $response['received_token'] = $token;
+            $response['verification_token'] = $hashed_verification_token;
+
+            echo json_encode($response);
+            return;
+        } else {
+            http_response_code(404);
+            return;
+        }
+    } else {
+        http_response_code(403);
+        return;
+    }
+}else{
+    http_response_code(403);
+        return;
+}
