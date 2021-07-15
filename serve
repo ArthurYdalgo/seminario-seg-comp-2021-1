@@ -1,0 +1,9 @@
+<?php
+
+$ip = '127.0.0.1';
+
+$port = '80';
+
+echo "Listening to $ip:$port\n";
+
+shell_exec("php -S $ip:$port");
