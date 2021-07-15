@@ -43,36 +43,33 @@ foreach ($time_variables as $time_variable => $date_time_tag) {
     $$time_variable = $date_time->format($date_time_tag);
 }
 
+// Gets token
+$token = isset($_GET['token']) ? $_GET['token'] : null;
 
-if (isset($_GET['token'])) {
-    // Gets token
-    $token = $_GET['token'];
+// Generates TOTP-Token for validation
+$pre_hash_token = "{$day}-DHW-{$month}-ABH-" . ((int)($second / 30)) . "-ADC-{$year}-VFG-{$hour}-REW-{$minute}";
 
-    // Generates TOTP-Token for validation
-    $pre_hash_token = "{$day}-DHW-{$month}-ABH-".((int)($second / 30))."-ADC-{$year}-VFG-{$hour}-REW-{$minute}";
+$hashed_verification_token = hash('sha512', $pre_hash_token);
 
-    $hashed_verification_token = hash('sha512', $pre_hash_token);    
+$user = isset($_GET['user']) ? $_GET['user'] : null;
 
-    // Checks TOTP-Token and returns or not data
-    if ($token == $hashed_verification_token) {
-        $user = isset($_GET['user']) ? $_GET['user'] : null;
-        if (isset($mock_data[$user])) {
-            $response = $mock_data[$user];
+// Checks TOTP-Token and returns or not data
 
-            $response['received_token'] = $token;
-            $response['verification_token'] = $hashed_verification_token;
-
-            echo json_encode($response);
-            return;
-        } else {
-            http_response_code(404);
-            return;
-        }
-    } else {
-        http_response_code(403);
-        return;
-    }
-}else{
+if ($token != $hashed_verification_token) {
     http_response_code(403);
-        return;
+    return;
 }
+
+if (isset($mock_data[$user])) {
+
+    $response = $mock_data[$user];
+
+    $response['received_token'] = $token;
+    $response['verification_token'] = $hashed_verification_token;
+
+    echo json_encode($response);
+    return;
+}
+
+http_response_code(404);
+return;
